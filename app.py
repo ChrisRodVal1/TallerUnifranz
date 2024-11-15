@@ -54,6 +54,21 @@ def update_user(id: int, user: User):
     save_mock_data(data)
     return JSONResponse(content={"user": existing_user})
 
+@app.delete("/users/{id}")
+def delete_user(id: int):
+    data = load_mock_data()
+    users = data["users"]
+    user_to_delete = next((user for user in users if user["id"] == id), None)
+    if user_to_delete is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    # Remove the user from the list
+    users = [user for user in users if user["id"] != id]
+    data["users"] = users
+    save_mock_data(data)
+    
+    return JSONResponse(content={"message": f"User with id {id} has been deleted"}, status_code=200)
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to FastAPI Test API"}
